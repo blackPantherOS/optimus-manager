@@ -49,17 +49,34 @@ def get_active_renderer():
 
 def is_module_available(module_name):
 
+    logger = get_logger()
+
     try:
-        exec_bash("modinfo %s" % module_name)
+        exec_bash("/usr/sbin/modinfo %s" % module_name)
     except BashError:
+        logger.info("NOT Get modinfo %s" % module_name)
         return False
     else:
+        logger.info("Get True modinfo %s" % module_name)
+        return True
+
+def is_module_loaded_available(module_name):
+
+    logger = get_logger()
+
+    try:
+        exec_bash("/usr/sbin/lsmod | grep %s" % module_name)
+    except BashError:
+        logger.warning("Not lsmod: %s" % module_name)
+        return False
+    else:
+        logger.warning("True lsmod %s" % module_name)
         return True
 
 def is_module_loaded(module_name):
 
     try:
-        exec_bash("lsmod | grep -E \"^%s \"" % module_name)
+        exec_bash("/usr/sbin/lsmod | grep -E \"^%s \"" % module_name)
     except BashError:
         return False
     else:
@@ -87,7 +104,7 @@ def using_patched_GDM():
 def check_offloading_available():
 
     try:
-        out = exec_bash("xrandr --listproviders")
+        out = exec_bash("/usr/bin/xrandr --listproviders")
     except BashError as e:
         raise CheckError("Cannot list xrandr providers : %s" % str(e))
 

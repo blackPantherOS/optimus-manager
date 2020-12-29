@@ -28,11 +28,20 @@ def setup_kernel_state(config, prev_state, requested_mode):
 def get_available_modules():
 
     MODULES = [
-        "nouveau", "bbswitch", "acpi_call", "nvidia",
+        "nouveau", "bbswitch", "acpi_call", "nvidia_current",
         "nvidia_drm", "nvidia_modeset", "nvidia_uvm"
     ]
 
     return [module for module in MODULES if checks.is_module_available(module)]
+
+def get_unload_modules():
+
+    MODULES = [
+        "nouveau", "bbswitch", "nvidia",
+        "nvidia_drm", "nvidia_modeset", "nvidia_uvm"
+    ]
+
+    return [module for module in MODULES if checks.is_module_loaded_available(module)]
 
 def nvidia_power_up(config, available_modules):
 
@@ -131,7 +140,7 @@ def _load_nvidia_modules(config, available_modules):
     pat_value = _get_PAT_parameter_value(config)
     modeset_value = 1 if config["nvidia"]["modeset"] == "yes" else 0
 
-    _load_module(available_modules, "nvidia", options="NVreg_UsePageAttributeTable=%d" % pat_value)
+    _load_module(available_modules, "nvidia_current", options="NVreg_UsePageAttributeTable=%d" % pat_value)
     _load_module(available_modules, "nvidia_drm", options="modeset=%d" % modeset_value)
 
 def _load_nouveau(config, available_modules):
@@ -235,7 +244,7 @@ def _load_module(available_modules, module, options=None):
             "module %s is not available for current kernel."
             " Is the corresponding package installed ?" % module)
     try:
-        exec_bash("modprobe %s %s" % (module, options))
+        exec_bash("/usr/sbin/modprobe %s %s" % (module, options))
     except BashError as e:
         raise KernelSetupError("error running modprobe for %s : %s" % (module, str(e)))
 
@@ -243,6 +252,7 @@ def _unload_modules(available_modules, modules_list):
 
     logger = get_logger()
 
+    available_modules = get_unload_modules()
     modules_to_unload = [m for m in modules_list if m in available_modules]
 
     if len(modules_to_unload) == 0:
@@ -251,8 +261,7 @@ def _unload_modules(available_modules, modules_list):
     logger.info("Unloading modules %s (if loaded)", str(modules_to_unload))
 
     try:
-        # Unlike "rmmod", "modprobe -r" does not return an error if the module is not loaded.
-        exec_bash("modprobe -r " + " ".join(modules_to_unload))
+        exec_bash("/usr/sbin/rmmod " + " ".join(modules_to_unload))
     except BashError as e:
         raise KernelSetupError("Cannot unload modules %s : %s" % (str(modules_to_unload), str(e)))
 
