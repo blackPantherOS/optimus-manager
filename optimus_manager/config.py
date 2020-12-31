@@ -27,18 +27,14 @@ def _load_config():
     base_config = _parsed_config_to_dict(base_config)
     _validate_config(base_config)
 
-    user_config = configparser.ConfigParser()
-    user_config.read([envs.USER_CONFIG_PATH])
-    user_config = _parsed_config_to_dict(user_config)
-    _validate_config(user_config)
-
-    if not os.path.isfile(envs.USER_CONFIG_COPY_PATH):
-        return user_config
+    if not os.path.isfile(envs.USER_CONFIG_PATH) and not os.path.isfile(envs.USER_CONFIG_COPY_PATH):
+        return base_config
 
     try:
         user_config = configparser.ConfigParser()
-        user_config.read([envs.DEFAULT_CONFIG_PATH, envs.USER_CONFIG_PATH, envs.USER_CONFIG_COPY_PATH])
+        user_config.read([envs.USER_CONFIG_PATH, envs.USER_CONFIG_COPY_PATH])
         user_config = _parsed_config_to_dict(user_config)
+        _validate_config(user_config)
     except configparser.ParsingError as e:
         logger.error(
             "Error parsing config file %s. Falling back to default config %s. Error is : %s",

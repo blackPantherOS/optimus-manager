@@ -137,10 +137,10 @@ def get_integrated_provider():
     return provider
 
 def is_xorg_intel_module_available():
-    return os.path.isfile("/usr/lib/xorg/modules/drivers/intel_drv.so")
+    return os.path.isfile("/usr/lib64/xorg/modules/drivers/intel_drv.so")
 
 def is_xorg_amdgpu_module_available():
-    return os.path.isfile("/usr/lib/xorg/modules/drivers/amdgpu_drv.so")
+    return os.path.isfile("/usr/lib64/xorg/modules/drivers/amdgpu_drv.so")
 
 
 def is_login_manager_active():
