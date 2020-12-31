@@ -187,10 +187,9 @@ def _generate_nvidia(config, bus_ids, xorg_extra):
 def _make_modules_paths_section():
 
     return "Section \"Files\"\n" \
-           "\tModulePath \"/usr/lib/nvidia\"\n" \
-           "\tModulePath \"/usr/lib32/nvidia\"\n" \
-           "\tModulePath \"/usr/lib32/nvidia/xorg/modules\"\n" \
-           "\tModulePath \"/usr/lib32/xorg/modules\"\n" \
+           "\tModulePath \"/usr/lib64/nvidia340/xorg\"\n" \
+           "\tModulePath \"/usr/lib64/nvidia390/xorg\"\n" \
+           "\tModulePath \"/usr/lib64/nvidia-current/xorg\"\n" \
            "\tModulePath \"/usr/lib64/nvidia/xorg/modules\"\n" \
            "\tModulePath \"/usr/lib64/nvidia/xorg\"\n" \
            "\tModulePath \"/usr/lib64/xorg/modules\"\n" \
@@ -209,12 +208,15 @@ def _generate_hybrid_intel(config, bus_ids, xorg_extra):
 
     text = _make_modules_paths_section()
 
-    text += "Section \"ServerLayout\"\n" \
+    text = "Section \"ServerLayout\"\n" \
            "\tIdentifier \"layout\"\n" \
            "\tScreen 0 \"intel\"\n" \
-           "\tInactive \"nvidia\"\n" \
-           "\tOption \"AllowNVIDIAGPUScreens\"\n" \
-           "EndSection\n\n"
+           "\tInactive \"nvidia\"\n"
+    if config["optimus"]["reverseprime"] != "":
+        reverseprime_enabled_str = {"yes": "true", "no": "false"}[config["optimus"]["reverseprime"]]
+        text += "\tOption \"AllowPRIMEDisplayOffloadSink\" \"%s\"\n" % reverseprime_enabled_str
+    text += "\tOption \"AllowNVIDIAGPUScreens\"\n" \
+            "EndSection\n\n"
 
     text += _make_intel_device_section(config, bus_ids, xorg_extra)
 
@@ -242,11 +244,15 @@ def _generate_hybrid_amd(config, bus_ids, xorg_extra):
 
     text = _make_modules_paths_section()
 
-    text += "Section \"ServerLayout\"\n" \
+    text = "Section \"ServerLayout\"\n" \
            "\tIdentifier \"layout\"\n" \
            "\tScreen 0 \"amd\"\n" \
-           "\tOption \"AllowNVIDIAGPUScreens\"\n" \
-           "EndSection\n\n"
+           "\tInactive \"nvidia\"\n"
+    if config["optimus"]["reverseprime"] != "":
+        reverseprime_enabled_str = {"yes": "true", "no": "false"}[config["optimus"]["reverseprime"]]
+        text += "\tOption \"AllowPRIMEDisplayOffloadSink\" \"%s\"\n" % reverseprime_enabled_str
+    text += "\tOption \"AllowNVIDIAGPUScreens\"\n" \
+            "EndSection\n\n"
 
     text += _make_amd_device_section(config, bus_ids, xorg_extra)
 

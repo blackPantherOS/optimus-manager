@@ -9,7 +9,8 @@
 
 		"startup_mode": ["single_word", ["integrated", "hybrid", "nvidia", "auto", "intel"], false],
 		"startup_auto_battery_mode": ["single_word", ["integrated", "hybrid", "nvidia"], false],
-		"startup_auto_extpower_mode": ["single_word", ["integrated", "hybrid", "nvidia"], false]
+		"startup_auto_extpower_mode": ["single_word", ["integrated", "hybrid", "nvidia"], false],
+		"reverseprime": ["single_word", ["yes", "no"], true]
 	},
 
 	"intel":

@@ -93,6 +93,21 @@ def get_current_display_manager():
 
     return dm_name
 
+def _get_openrc_display_manager(init):
+
+    if not init == "openrc":
+        return using_patched_GDM()
+    else:
+        pass
+
+    if not os.path.isfile("/etc/init.d/xdm"):
+        raise CheckError("No xdm init script fle found")
+
+    dm_service_path = os.path.realpath("/etc/init.d/xdm")
+    dm_service_filename = os.path.split(dm_service_path)[-1]
+    dm_name = os.path.splitext(dm_service_filename)[0]
+
+    return dm_name
 
 def using_patched_GDM():
 
@@ -113,6 +128,13 @@ def check_offloading_available():
             return True
     return False
 
+def get_integrated_provider():
+
+    try:
+        provider = exec_bash("xrandr --listproviders | egrep -io \"name:.*AMD.*|name:.*Intel.*\" | sed 's/name://;s/^/\"/;s/$/\"/'")
+    except BashError as e:
+        raise CheckError("Cannot find Intel or AMD in xrandr providers : %s" % str(e))
+    return provider
 
 def is_xorg_intel_module_available():
     return os.path.isfile("/usr/lib/xorg/modules/drivers/intel_drv.so")
@@ -184,6 +206,13 @@ def _is_gl_provider_nvidia():
             return True
     return False
 
+def get_integrated_gpu():
+
+    try:
+        exec_bash("glxinfo | awk '/Vendor:/{print $2}'| grep 'X.Org'")
+        return "amd"
+    except BashError:
+        return "intel"
 
 def _is_service_active(service_name):
 

@@ -44,12 +44,12 @@ def _check_bbswitch_module(config):
     if config["optimus"]["switching"] == "bbswitch" and not checks.is_module_available("bbswitch"):
         print("WARNING : bbswitch is enabled in the configuration file but the bbswitch module does"
               " not seem to be available for the current kernel. Power switching will not work.\n"
-              "You can install bbswitch for the default kernel with \"sudo pacman -S bbswitch\" or"
-              " for all kernels with \"sudo pacman -S bbswitch-dkms\".\n")
+              "You can install bbswitch for the default kernel with \"installing bbswitch\" or"
+              " for all kernels with \"installing dkms-bbswitch\".\n")
 
 def _check_nvidia_module(requested_mode):
 
-    if requested_mode == "nvidia" and not checks.is_module_available("nvidia"):
+    if requested_mode == "nvidia" and not checks.is_module_available("nvidia-current"):
         print("WARNING : the nvidia module does not seem to be available for the current kernel."
               " It is likely the Nvidia driver was not properly installed. GPU switching will probably fail,\n"
               " continue anyway ? (y/N)")
@@ -146,7 +146,7 @@ def _check_intel_xorg_module(config, requested_mode):
     if requested_mode == "integrated" and config["intel"]["driver"] == "intel" and not checks.is_xorg_intel_module_available():
         print("WARNING : The Xorg driver \"intel\" is selected in the configuration file but this driver is not installed."
               " optimus-manager will default to the \"modesetting\" driver instead. You can install the \"intel\" driver from"
-              " the package \"xf86-video-intel.\"\n"
+              " the package \"x11-driver-video-intel.\"\n"
               "Continue ? (y/N)")
 
         confirmation = ask_confirmation()
